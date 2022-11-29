@@ -1,3 +1,4 @@
+# Importar librerías.
 import os
 import cv2
 from matplotlib import pyplot
@@ -10,9 +11,11 @@ from tabulate import tabulate
 count = 0
 name_players = []
 
+# Creación y conexión con la base de datos.
 connect = sqlite3.connect('baseball.sqlite3')
 cursor = connect.cursor()
 
+# 18 a 36 Creación de las tablas de la Base de datos.
 query = f'''
     CREATE TABLE IF NOT EXISTS Equipo (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,11 +37,7 @@ cursor.execute(query)
 
 
 def login():
-    '''
-        Function to log in to a company.
-        If the company name and company password are correct, it returns a menu that gives you the data pulled from the database.
-        Else create a company with the data provided.
-    '''
+    # Iniciar sesión con un equipo.
 
     team_name = str(input("Nombre del equipo: "))
 
@@ -53,11 +52,7 @@ def login():
 
 
 def menu(get_data):
-    '''
-        Menu function that presents different options.
-
-        params: get_data "The Company data extracted from the database."
-    '''
+    # Presenta las opciones del programa.
     print(
         '1 - Listar jugadores, 2 - Crear jugador, 3 - Editar jugador, 4 - Borrar jugador, 5 - Registrar fotos a un jugador , 6 - Salir')
     opt = input('¿Qué desea hacer?: ')
@@ -82,12 +77,7 @@ def menu(get_data):
 
 
 def create_team():
-    '''
-        Function to create a company in case it don´t exists in the database.
-
-        params: company_name "A name for the company provided by the User."
-        params: company_password "A password for the company provided by the User."
-    '''
+    # Crea los equipos.
     team_name = input("Nombre del equipo: ")
     name = input('Confirme su nombre de equipo: ')
     if team_name == name:
@@ -104,14 +94,8 @@ def create_team():
 
 
 def create_player(team_data, number_players):
-    '''
-        Function to create an employee.
-
-        params: company_data "The company data, to assign to their respective employees."
-        params: number_of_employees "number of times will execute this function."
-
-        return: Back to the menu options.
-    '''
+    # Función para crear jugadores.
+    # (Parámetros.) Datos del equipo | Numero de jugadores a crear.
     global count
 
     while count < number_players:
@@ -145,13 +129,8 @@ def create_player(team_data, number_players):
 
 
 def list_player(team_data):
-    '''
-        Function to display all employees by the current company.
-
-        params: company_data "The company data, to list their respective employees."
-
-        return: Back to the menu options.
-    '''
+    # Llama a otra función para listar jugadores.
+    # (Parámetros.) Datos del equipo.
     print('Lista de empleados', end='\n')
     get_data = mechanism_list_players(team_data)
 
@@ -159,13 +138,8 @@ def list_player(team_data):
 
 
 def mechanism_list_players(team_data):
-    '''
-        This function provides a list of all employees in the current company.
-
-        params: company_data "The company data, to find their respective employees."
-
-        return: list with all employees found.
-    '''
+    # Lista a los jugadores.
+    # (Parámetros.) Datos del equipo.
     query = f'SELECT * FROM Jugador WHERE equipo_id = ?'
     cursor.execute(query, (team_data[0][0],))
     get_data = cursor.fetchall()
@@ -180,6 +154,8 @@ def mechanism_list_players(team_data):
 
 
 def edit_player(team_data):
+    # Editar los datos de un jugador.
+    # (Parámetros.) Datos del equipo.
     get_data = mechanism_list_players(team_data)
     print()
     if get_data is not None:
@@ -213,6 +189,8 @@ def edit_player(team_data):
 
 
 def delete_player(team_data):
+    # Borrar jugador.
+    # (Parámetros.) Datos del equipo.
     print()
     print('Borrar jugador\n')
     get_data = mechanism_list_players(team_data)
@@ -235,11 +213,8 @@ def delete_player(team_data):
 
 
 def create_carpets(team_data):
-    '''
-        This function creates all the necessary directories for employees.
-
-        params: company_data "The company data, to find their respective employees."
-    '''
+    # Crea las carpetas necesarias para el proyecto.
+    # (Parámetros.) Crea la carpeta.
 
     carpet = os.path.join(os.path.realpath(os.getcwd()), 'Teams', team_data[0][1], 'Players')
 
@@ -250,13 +225,13 @@ def create_carpets(team_data):
     players = cursor.fetchall()
     if players:
         for player in players:
-            if not os.path.exists(carpet + '/' + f'{player[0]}'):  # Create carpet with the player id like name.
+            if not os.path.exists(carpet + '/' + f'{player[0]}'):  # Crea la carpeta con el ID del jugador..
                 os.makedirs(carpet + '/' + f'{player[0]}')
-            if not os.path.exists(carpet + '/' + f'{player[0]}' + '/' + 'Photos'):
+            if not os.path.exists(carpet + '/' + f'{player[0]}' + '/' + 'Photos'): # Crea la carpeta llamada "Photos"
                 os.makedirs(carpet + '/' + f'{player[0]}' + '/' + 'Photos')
-            if not os.path.exists(carpet + '/' + f'{player[0]}' + '/' + 'Photos' + '/' + 'Profile'):
+            if not os.path.exists(carpet + '/' + f'{player[0]}' + '/' + 'Photos' + '/' + 'Profile'): # Crea la carpeta llamada "Profile"
                 os.makedirs(carpet + '/' + f'{player[0]}' + '/' + 'Photos' + '/' + 'Profile')
-            if not os.path.exists(carpet + '/' + f'{player[0]}' + '/' + 'Photos' + '/' + 'Detection'):
+            if not os.path.exists(carpet + '/' + f'{player[0]}' + '/' + 'Photos' + '/' + 'Detection'): # Crea la carpeta llamada "Detection"
                 os.makedirs(carpet + '/' + f'{player[0]}' + '/' + 'Photos' + '/' + 'Detection')
         print('Carpetas creadas con éxito!')
 
@@ -264,12 +239,8 @@ def create_carpets(team_data):
 
 
 def choose_carpet(company_data, carpet):
-    '''
-        This function presents options for registering different types of images.
-
-        params: company_data "The company data, to find their respective employees."
-        params: carpet "This will be the path to save all the images."
-    '''
+    # Seleccionar carpeta a regitrar fotos.
+    # (Parámetros.) Datos del equipo | Carpeta actual.
     global player
     counter = 0
     players = os.listdir(carpet)
@@ -297,8 +268,10 @@ def choose_carpet(company_data, carpet):
         print(f'Usted eligió {photo_carpet}')
         carpet += f'/{player}/Photos/{photo_carpet}'
         if photo_carpet == 'Profile':
+            # Redirige a la función para crear la foto de perfil.
             save_image_profile(carpet, player, 1)
         else:
+            # Redirige a la función para crear las fotos de detección.
             save_image_profile(carpet, player, 300)
     except Exception as e:
         print(f'ERROR: {e}')
@@ -306,12 +279,8 @@ def choose_carpet(company_data, carpet):
 
 
 def save_image_profile(carpet, player, limit: int):
-    '''
-        This function save profile images, depending on the "carpet" param.
-
-        param: carpet "This will be the path to save 300 profile images."
-        param: emp -> employee "Determines the employee to which all images will be assigned."
-    '''
+    # Guarda la imagen de perfil o de detección en función del límite.
+    # (Parámetros.) carpeta | jugador | limite
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     faceClassif = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     counter = 0
@@ -361,5 +330,7 @@ elif option == '2':
 else:
     print('Opción inválida. Hasta luego.')
 
+
+# Actualizar y cerrar la conexión con la base de datos.
 connect.commit()
 connect.close()
